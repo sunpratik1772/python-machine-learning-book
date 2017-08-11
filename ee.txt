@@ -28,3 +28,36 @@ a.MBR_PROD_ENRLMNT_EFCTV_DT <= $1  " \
         --hive-table rs_$2_15_risk_table  \
         --target-dir /hdfsdata/vs1/isg/adva/no_phi/no_gbd/warehouse/Restated_Membership/rs_$2_15_risk_table \
         --compress
+
+
+
+cat /inmk/inmkbi/backup/data/ADHOC/module1-0.0.1-SNAPSHOT.jar | ssh af08765@dwbdtest1r1e.wellpoint.com "hadoop fs -put - sastest/test11-0.0.1-SNAPSHOT.jar"
+
+
+cat /inmk/inmkbi/backup/data/ADHOC/module1-0.0.1-SNAPSHOT.jar | ssh af08765@dwbdtest1r1e.wellpoint.com "hadoop fs -put - sastest/test111-0.0.1-SNAPSHOT.jar"
+
+scp  /inmk/inmkbi/backup/programs/da_team/hadoop/module1-0.0.1-SNAPSHOT.jar ad69135@dwbddisc1r1e.wellpoint.com:/home/ad69135/af08765/prepro2.jar
+
+
+spark-submit --class com.supratik.restatedMembership.module1.test\
+  restated_part1.0-0.0.1-SNAPSHOT.jar "2" "7" "'Jul2015'" --files /etc/hive/conf/hive-site.xml \
+  --conf spark.yarn.executor.memoryOverhead=600 --driver-memory 12G --executor-memory 4096M
+
+spark-submit --class com.supratik.restatedMembership.module2.test1\
+  restated_part2.0-0.0.1-SNAPSHOT.jar "'2015-07'" ""201507"" ""Jul2015"" --conf spark.yarn.executor.memoryOverhead=600 --driver-memory 12G --executor-memory 4096M 
+
+spark-submit --class com.supratik.restatedMembership.module2.test1\
+  restated_part3.0-0.0.1-SNAPSHOT.jar ""Jul2015"" ""201507"" "2015-07-31" "'2016-01-01'" "jul" --conf spark.yarn.executor.memoryOverhead=600 --driver-memory 12G --executor-memory 4096M 
+
+/usr/bin/kafka-console-producer --broker-list dwbdtest1r1m.wellpoint.com:9092 --topic test
+
+/usr/bin/kafka-console-consumer --bootstrap-server dwbdtest1r1m.wellpoint.com:9092 --topic test --from-beginning
+
+$ /usr/bin/kafka-console-consumer --zookeeper dwbdtest1r1m.wellpoint.com:9092:2181 --topic test --from-beginning
+
+
+spark-submit --class com.supratik.restatedMembership.module1.test --master yarn --deploy-mode cluster --conf spark.yarn.executor.memoryOverhead=600 --driver-memory 12G --executor-memory 4096M --num-executors 30 \
+  --conf spark.network.timeout=800s --executor-cores 1 first.jar "2" "201601" "'Jan2016'" "2016" "restated_spark_jan" "rest_jan"
+  
+  spark-submit --class com.supratik.restatedMembership.module1.test --master yarn --deploy-mode cluster --conf spark.yarn.executor.memoryOverhead=600 --driver-memory 12G --executor-memory 4096M --num-executors 30 \
+  --conf spark.network.timeout=800s --executor-cores 1 first.jar "2" "201701" "'Jan2017'" "2017" "restated_spark_jan" "rest_jan"
