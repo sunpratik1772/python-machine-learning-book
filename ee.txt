@@ -1,0 +1,30 @@
+sqoop import \
+        --connect "jdbc:teradata://DWPROD2COP1.CORP.ANTHEM.COM/DATABASE='EDW_NOHAPHI_XM'" \
+        --username=AF08765 \
+        --password-file file:///home/af08765/sqoop-password  \
+        --query " select distinct a.MBR_KEY,b.ALT_KEY,b.MCID
+                from
+                (        select distinct MBR_KEY ,MBU_CF_CD,MBR_PROD_ENRLMNT_TRMNTN_DT, MBR_PROD_ENRLMNT_EFCTV_DT,ELGBLTY_CLNDR_MNTH_END_DT from
+                        RSTTD_MBRSHP_MNTH_CNT
+                 )  a
+inner join
+                ( select distinct  ALT_KEY, cast(mcid as char(20) )as MCID
+                from
+                MDM_PPLTN_XWALK
+                        Qualify row_number() over( partition by ALT_KEY order by   XWALK_TRMNTN_DT DESC, XWALK_EFCTV_DT DESC)=1
+                )  b
+on
+a.MBR_KEY = b.ALT_KEY
+where  \$CONDITIONS AND
+ MBU_CF_CD IN ('INCAHP','INCAN2','INCANM','INCANO','INCAS2','INCASM','INCASO','INCOZZ',
+'INNVHP','INNVZZ', 'ININZZ','INKYZZ','INMOZZ',
+'INOHGT','INOHZZ','INWIZZ', 'INCTZZ','INGAZZ','INMEZZ','INNYZZ','INVAZZ','INNHZZ') and
+a.MBR_PROD_ENRLMNT_TRMNTN_DT >= $1 and
+a.MBR_PROD_ENRLMNT_EFCTV_DT <= $1  " \
+       --fields-terminated-by '|' \
+        --lines-terminated-by '\n' \
+        -m 1 \
+        --hive-import \
+        --hive-table rs_$2_15_risk_table  \
+        --target-dir /hdfsdata/vs1/isg/adva/no_phi/no_gbd/warehouse/Restated_Membership/rs_$2_15_risk_table \
+        --compress
