@@ -1,5 +1,5 @@
 sqoop import \
-        --connect "jdbc:teradata://DWPROD2COP1.CORP.ANTHEM.COM/DATABASE='EDW_NOHAPHI_XM'" \
+        --connect "jdbc:teradata://rrrrr/DATABASE='rrr'" \
         --username=AF08765 \
         --password-file file:///home/af08765/sqoop-password  \
         --query " select distinct a.MBR_KEY,b.ALT_KEY,b.MCID
